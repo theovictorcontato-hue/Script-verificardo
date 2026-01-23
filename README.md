@@ -1,97 +1,99 @@
--- Tubers93 Mode 😈 - Versão Corrigida 2026
-print("Tubers93 carregando... Aguarde a faca das sombras 🩸🔪")
+local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 
-local success, Rayfield = pcall(function()
-    return loadstring(game:HttpGet('https://raw.githubusercontent.com/shlexware/Rayfield/main/source'))()
-end)
-
-if not success or not Rayfield then
-    print("ERRO: Rayfield falhou! Tenta outro executor ou link alternativo.")
-    return
-end
-
-local Window = Rayfield:CreateWindow({
-   Name = "Tubers93 Executor 🩸🔪",
-   LoadingTitle = "Tubers93 das Sombras Chegou",
-   LoadingSubtitle = "Prepare a vítima...",
-   ConfigurationSaving = {Enabled = false},
-   KeySystem = false
+local KeyWindow = Rayfield:CreateWindow({
+   Name = "Get Key System",
+   Theme = "Default",
+   ToggleUIKeybind = "K",
+   KeySystem = false,
 })
 
-local MainTab = Window:CreateTab("Faca Mode", 4483362458) -- Ícone de faca/foice
+local KeyTab = KeyWindow:CreateTab("Key", 4483362458)
 
-MainTab:CreateSection("Bem-vindo ao Modo Tubers93")
-
-MainTab:CreateParagraph({
-   Title = "Modo Ativado!",
-   Content = "Você agora é o Tubers93: cabelo bagunçado, peito buff, foice com corrente. Dá facada invisível com só som + notificação! 😈"
+-- Input pra digitar a key
+local KeyInput = KeyTab:CreateInput({
+   Name = "Digite a Key",
+   PlaceholderText = "Insira aqui...",
+   RemoveTextAfterFocusLost = false,
+   Callback = function(Text) end,
 })
 
-local KillSection = MainTab:CreateSection("Eliminação Silenciosa")
-
-KillSection:CreateButton({
-   Name = "Faca Tubers93 - Kill no Mais Próximo",
+-- Botão Get Key (copia o link novo)
+KeyTab:CreateButton({
+   Name = "Get Key (Copiar Link)",
    Callback = function()
-      -- (código do kill próximo igual antes, sem mudanças)
-      local player = game.Players.LocalPlayer
-      local char = player.Character
-      if not char or not char:FindFirstChild("HumanoidRootPart") then return end
+      setclipboard("https://preview--keenly-witty-carpenter.instance.app/?instanceInstallBanner=false")
+      Rayfield:Notify({
+         Title = "Link Copiado!",
+         Content = "Abra no navegador → veja a key aleatória exibida na página → cole aqui.",
+         Duration = 8,
+      })
+   end,
+})
+
+-- Botão Confirmar Key (com espaço pra colar a API)
+KeyTab:CreateButton({
+   Name = "Confirmar Key",
+   Callback = function()
+      local digitada = KeyInput.CurrentValue or ""
       
-      local closest, minDist = nil, math.huge
-      for _, plr in game.Players:GetPlayers() do
-         if plr ~= player and plr.Character and plr.Character:FindFirstChild("HumanoidRootPart") then
-            local dist = (char.HumanoidRootPart.Position - plr.Character.HumanoidRootPart.Position).Magnitude
-            if dist < minDist and dist < 60 then
-               minDist = dist
-               closest = plr
+      -- =============================================
+      -- COLOQUE O URL DA SUA API AQUI ↓↓↓
+      local API_URL = "https://preview--keenly-witty-carpenter.instance.app/?instanceInstallBanner=false"  -- Exemplo: "https://seu-projeto-default-rtdb.firebaseio.com/current_key.json"
+                          -- Deixe vazio "" se quiser usar verificação simples sem API
+      -- =============================================
+      
+      if API_URL ~= "" then
+         -- Modo API (checa no servidor)
+         local HttpService = game:GetService("HttpService")
+         local success, response = pcall(function()
+            return HttpService:GetAsync(API_URL)
+         end)
+         
+         if success then
+            local data = HttpService:JSONDecode(response)
+            if data and data.key then
+               if digitada == data.key then
+                  local now = os.time() * 1000
+                  if data.expires_at and now < data.expires_at then
+                     Rayfield:Notify({Title = "Acesso Liberado!", Content = "Key válida via API!", Duration = 3})
+                     goto load_hub
+                  else
+                     Rayfield:Notify({Title = "Key Expirada", Content = "A key expirou.", Duration = 5})
+                     return
+                  end
+               end
             end
+         else
+            Rayfield:Notify({Title = "Erro na API", Content = "Não conseguiu conectar. Tente depois.", Duration = 5})
+            return
          end
+         
+         Rayfield:Notify({Title = "Key Inválida", Content = "Não bate com a API.", Duration = 4})
+         return
       end
       
-      if closest then
-         Rayfield:Notify({Title = "Tubers93 Atacou!", Content = "Foice em "..closest.Name.."! 👹", Duration = 4})
-         local sound = Instance.new("Sound", game.SoundService)
-         sound.SoundId = "rbxassetid://9112932637"
-         sound.Volume = 4
-         sound:Play()
-         closest.Character.Humanoid.Health = 0
-         wait(1)
-         Rayfield:Notify({Title = "ELIMINADO", Content = closest.Name.." caiu sem ver nada... 🩸", Duration = 5})
+      -- Modo simples (sem API) - fallback
+      if digitada == "free_delta" then
+         Rayfield:Notify({Title = "Acesso Liberado!", Content = "Carregando hub...", Duration = 3})
+         
+         ::load_hub::
+         task.wait(0.6)
+         pcall(function() Rayfield:Destroy() end)
+         if KeyWindow then KeyWindow:Hide() end
+         
+         pcall(function()
+            loadstring(game:HttpGet("https://pastefy.app/rt7ZX9V4/raw"))()
+         end)
+         
+         Rayfield:Notify({Title = "Hub Carregado!", Content = "Aproveite as funções OP!", Duration = 5})
       else
-         Rayfield:Notify({Title = "Sem Vítima", Content = "Ninguém perto... espere 😏", Duration = 4})
+         Rayfield:Notify({Title = "Key Inválida", Content = "Tente novamente.", Duration = 4})
       end
    end,
 })
 
-KillSection:CreateButton({
-   Name = "Kill All - Rage Mode Tubers93",
-   Callback = function()
-      Rayfield:Notify({Title = "Fúria Ativada", Content = "Todo mundo leva facada!", Duration = 3})
-      for _, plr in game.Players:GetPlayers() do
-         if plr ~= game.Players.LocalPlayer and plr.Character and plr.Character:FindFirstChild("Humanoid") then
-            plr.Character.Humanoid.Health = 0
-         end
-      end
-      local sound = Instance.new("Sound", game.SoundService)
-      sound.SoundId = "rbxassetid://9112932637"
-      sound.Volume = 5
-      sound:Play()
-   end,
+-- Instruções
+KeyTab:CreateParagraph({
+   Title = "Instruções",
+   Content = "1. Clique em 'Get Key' pra copiar o link\n2. Abra no navegador e pegue a key que aparece\n3. Cole aqui e clica em Confirmar Key"
 })
-
-local ExitTab = Window:CreateTab("Sair", 7072718362)
-ExitTab:CreateButton({
-   Name = "Desativar Tubers93",
-   Callback = function()
-      Rayfield:Destroy()
-      game.StarterGui:SetCore("SendNotification",{Title="Tubers93 Sumiu",Text="Nas sombras novamente... 😈",Duration=6})
-   end,
-})
-
-Rayfield:Notify({
-   Title = "Tubers93 Loaded 🔥",
-   Content = "UI aberta! Clique em 'Faca Mode' > 'Faca Tubers93 - Kill no Mais Próximo' pra virar o mito.",
-   Duration = 6
-})
-
-print("Tubers93 pronto! UI deve aparecer agora.")
